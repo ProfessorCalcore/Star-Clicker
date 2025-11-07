@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Star Clicker</title>
+<style>
+  body {
+    background: black;
+    color: white;
+    font-family: sans-serif;
+    overflow: hidden;
+    margin: 0;
+    padding: 20px;
+    position: relative;
+    height: 100vh;
+  }
+  button {
+    margin: 5px;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  #stars-label {
+    margin-top: 10px;
+    font-size: 18px;
+  }
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8em;
+  }
+</style>
+</head>
+<body>
+
+<button id="add-star-btn">Create A Star</button>
+<button id="auto-star-btn">Auto generate stars? Cost: 100</button>
+<div id="stars-label">Stars = 99</div>
+
+<script>
+let quantityStars = 99;
+let autoStarsGenerator = false;
+let milliseconds = 1000;
+let starCost = 100;
+let upgrades = 0;
+
+const addStarBtn = document.getElementById('add-star-btn');
+const autoStarBtn = document.getElementById('auto-star-btn');
+const starsLabel = document.getElementById('stars-label');
+
+function randomChoice(arr, weights) {
+  let total = weights.reduce((a,b)=>a+b,0);
+  let r = Math.random() * total;
+  let sum = 0;
+  for(let i=0;i<arr.length;i++){
+    sum += weights[i];
+    if(r <= sum) return arr[i];
+  }
+}
+
+function createPixelButton() {
+  quantityStars += 1;
+
+  const sizeOptions = [1,2,3,4,5,6,7,8,9,10];
+  const weights = [50000, 500, 100, 200, 100, 75, 45, 15, 5, 1];
+  const randomSize = randomChoice(sizeOptions, weights);
+
+  let bgColour = "white";
+  switch(randomSize){
+    case 1: bgColour="white"; break;
+    case 2: bgColour="red"; break;
+    case 3: bgColour="orange"; break;
+    case 4: bgColour="yellow"; break;
+    case 5: bgColour="lime"; break;
+    case 6: bgColour="cyan"; break;
+    case 7: bgColour="blue"; break;
+    case 8: bgColour="purple"; break;
+    case 9: bgColour="pink"; break;
+    case 10: 
+      bgColour="violet"; 
+      growStar(); 
+      break;
+  }
+
+  const star = document.createElement('div');
+  star.classList.add('star');
+  star.style.backgroundColor = bgColour;
+  star.style.width = randomSize + 'px';
+  star.style.height = randomSize + 'px';
+  star.style.left = Math.random() * window.innerWidth + 'px';
+  star.style.top = Math.random() * window.innerHeight + 'px';
+  star.textContent = ".";
+
+  document.body.appendChild(star);
+}
+
+function growStar() {
+  const cutscene = document.createElement('div');
+  cutscene.style.position = 'absolute';
+  cutscene.style.width = '1000px';
+  cutscene.style.height = '1000px';
+  cutscene.style.left = '50%';
+  cutscene.style.top = '50%';
+  cutscene.style.transform = 'translate(-50%,-50%)';
+  cutscene.style.backgroundColor = 'black';
+  document.body.appendChild(cutscene);
+
+  setTimeout(()=> cutscene.remove(), 500);
+}
+
+function autoStarsUpgrade() {
+  if(quantityStars >= starCost){
+    quantityStars -= starCost;
+    starCost += 150;
+    upgrades += 1;
+    growStar();
+    autoStarsGenerator = true;
+    autoStarBtn.textContent = `Auto generate stars? Cost: ${starCost}`;
+    updateStars();
+  }
+}
+
+function autoStars() {
+  if(autoStarsGenerator){
+    createPixelButton();
+    for(let i=1;i<upgrades;i++){
+      createPixelButton();
+    }
+  }
+  setTimeout(autoStars, milliseconds);
+}
+
+function updateStars() {
+  starsLabel.textContent = `Stars = ${quantityStars}`;
+  requestAnimationFrame(updateStars);
+}
+
+addStarBtn.addEventListener('click', createPixelButton);
+autoStarBtn.addEventListener('click', autoStarsUpgrade);
+
+updateStars();
+autoStars();
+</script>
+
+</body>
+</html>
